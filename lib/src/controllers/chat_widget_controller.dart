@@ -6,6 +6,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../models/chat_message.dart';
 import '../models/chat_widget_config.dart';
+import 'package:html/parser.dart' show parse;
+import 'package:html_unescape/html_unescape.dart';
 
 
 class ChatWidgetController extends ChangeNotifier {
@@ -83,9 +85,14 @@ class ChatWidgetController extends ChangeNotifier {
 
   // Message Management
   void addMessage(String text, {required bool isUser}) {
+      final isHtml = text.contains(RegExp(r'<[a-zA-Z][^>]*>'));
+      String content=text;
+        if(isHtml){
+          content=htmlToPlainText(text);
+        }
     final message = ChatMessage(
       id: 'msg-${++_messageIdCounter}',
-      text: text,
+      text: content,
       isUser: isUser,
       timestamp: DateTime.now(),
     );
@@ -395,4 +402,10 @@ class ChatWidgetController extends ChangeNotifier {
     _scrollDebounceTimer?.cancel();
     super.dispose();
   }
+
+  String htmlToPlainText(String html) {
+  final document = parse(html);                    // parse into DOM
+  final rawText = document.body?.text ?? '';       // extract visible text (strips tags)
+  return HtmlUnescape().convert(rawText);          // decode HTML entities
+}
 }
