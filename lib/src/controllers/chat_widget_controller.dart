@@ -3,11 +3,12 @@ import 'dart:developer';
 
 import 'package:chatbuilder_flutter/src/utils/api_helper.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Element, Text;
 import '../models/chat_message.dart';
 import '../models/chat_widget_config.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:html_unescape/html_unescape.dart';
+import 'package:html/dom.dart' show Node, Element, Text;
 
 
 class ChatWidgetController extends ChangeNotifier {
@@ -87,7 +88,9 @@ class ChatWidgetController extends ChangeNotifier {
   void addMessage(String text, {required bool isUser}) {
       final isHtml = text.contains(RegExp(r'<[a-zA-Z][^>]*>'));
       String content=text;
+      log("textmessage $text");
         if(isHtml){
+           log("textmessage2 ${htmlToPlainText(text)}");
           content=htmlToPlainText(text);
         }
     final message = ChatMessage(
@@ -104,9 +107,16 @@ class ChatWidgetController extends ChangeNotifier {
   }
 
   void updateMessage(String id, String text) {
+    final isHtml = text.contains(RegExp(r'<[a-zA-Z][^>]*>'));
+      String content=text;
+      log("textmessage $text");
+        if(isHtml){
+           log("textmessage2 ${htmlToPlainText(text)}");
+          content=htmlToPlainText(text);
+        }
     final index = _messages.indexWhere((m) => m.id == id);
     if (index != -1) {
-      _messages[index] = _messages[index].copyWith(text: text);
+      _messages[index] = _messages[index].copyWith(text: content);
       notifyListeners();
     }
   }
@@ -403,9 +413,105 @@ class ChatWidgetController extends ChangeNotifier {
     super.dispose();
   }
 
-  String htmlToPlainText(String html) {
-  final document = parse(html);                    // parse into DOM
-  final rawText = document.body?.text ?? '';       // extract visible text (strips tags)
-  return HtmlUnescape().convert(rawText);          // decode HTML entities
+    String htmlToPlainText(String html) {
+  final doc = parse(html);
+
+  // remove unsafe / invisible nodes
+  doc.querySelectorAll('script, style, iframe, noscript').forEach((e) => e.remove());
+
+  final buf = StringBuffer();
+
+  void walk(Node node) {
+    if (node.nodeType == Node.TEXT_NODE) {
+      final textNode = node as Text;
+      buf.write(textNode.text);
+      return;
+    }
+
+    if (node is Element) {
+      final tag = node.localName?.toLowerCase() ?? '';
+
+      // simple rules for tags that imply line breaks or bullets
+      if (tag == 'br') {
+        buf.write('\n');
+        return;
+      }
+
+      if (tag == 'li') {
+        // bullet for list items
+        buf.write('- ');
+        for (final child in node.nodes) walk(child);
+        buf.write('\n');
+        return;
+      }
+
+      // block-level tags: ensure a break before/after
+      const blockTags = {
+        'p',
+        'div',
+        'section',
+        'article',
+        'header',
+        'footer',
+        'tr',
+        'table',
+        'ul',
+        'ol',
+        'blockquote',
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+        'h5',
+        'h6'
+      };
+
+      if (blockTags.contains(tag)) {
+        // add a newline if buffer doesn't already end with one
+        if (buf.isNotEmpty && !buf.toString().endsWith('\n')) buf.write('\n');
+        for (final child in node.nodes) walk(child);
+        buf.write('\n');
+        return;
+      }
+
+      // default: inline element: just recurse
+      for (final child in node.nodes) walk(child);
+    }
+  }
+
+  // start walking children of body (if body missing, walk whole doc)
+  final root = doc.body ?? doc.documentElement;
+  if (root != null) {
+    for (final child in root.nodes) walk(child);
+  } else {
+    for (final child in doc.nodes) walk(child);
+  }
+
+  // decode entities
+  String text =  HtmlUnescape().convert(buf.toString());
+
+  // normalize whitespace:
+  // - remove carriage returns
+  // - collapse spaces and tabs into single spaces
+  text = text.replaceAll('\r', '');
+  text = text.replaceAll(RegExp('[ \\t]+'), ' ');
+
+  // - split lines, trim each line, collapse multiple blank lines into a single blank line
+  final lines = text.split('\n').map((l) => l.trim()).toList();
+  final cleaned = <String>[];
+  bool prevEmpty = false;
+  for (final l in lines) {
+    if (l.isEmpty) {
+      if (!prevEmpty) {
+        cleaned.add(''); // keep one empty line
+        prevEmpty = true;
+      }
+    } else {
+      cleaned.add(l);
+      prevEmpty = false;
+    }
+  }
+
+  return cleaned.join('\n').trim();
 }
 }
