@@ -1,8 +1,8 @@
+
+// import 'package:chatbuilder_flutter/chatbuilder_flutter.dart';
 // import 'package:flutter/material.dart';
-// import 'package:nerdagent/shared/services/auth/token_manager.dart';
-// import 'package:nerdagent/shared/widgets/nerd_chat_widget/models/chat_widget_config.dart';
-// import 'package:nerdagent/shared/widgets/nerd_chat_widget/models/widget_position.dart';
-// import 'package:nerdagent/shared/widgets/nerd_chat_widget/view/nerd_chat_view.dart';
+
+
 
 // class DemoPage extends StatefulWidget {
 //   const DemoPage({Key? key}) : super(key: key);
@@ -80,7 +80,7 @@
 
 //       default:
 //         return ChatWidgetConfig(
-//           agentName: 'Support Agent',
+//           agentName: 'Supporting Agentz',
 //           agentRole: 'Customer Support',
 //           agentId: '124',
 //           apikey: 'DT_your_api_key',
@@ -94,6 +94,8 @@
 //           position: _position,
 //           collapsed: _collapsed,
 //           token: await TokenManager.getAccessToken(),
+//           poweredByUrl: 'https://flutter.dev',
+//           poweredByBrand: "hiiii",
 //         );
 //     }
 //   }
