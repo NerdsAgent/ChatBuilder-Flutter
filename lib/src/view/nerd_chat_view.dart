@@ -6,6 +6,7 @@ import '../utils/text_style_helper.dart';
 import 'widgets/animated_dot.dart';
 import 'widgets/chat_bubble_widget.dart';
 import 'widgets/minimize_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 class NerdChatWidget extends StatefulWidget {
@@ -498,8 +499,11 @@ class _NerdChatWidgetState extends State<NerdChatWidget>
           ),
           const SizedBox(width: 3), // Reduced from 4
           InkWell(
-            onTap: () {
-              // Handle URL launch if needed
+            onTap: ()async {
+              final Uri url = Uri.parse(widget.config.poweredByUrl);
+             if(await canLaunchUrl(url)){
+               await launchUrl(url);
+             }
             },
             child: Text(
               widget.config.poweredByBrand,
