@@ -106,7 +106,7 @@ class _MinimizeButtonWidgetState extends State<MinimizeButtonWidget> {
                       ],
                     ),
                     child: const Icon(
-                      Icons.chat_bubble,
+                      Icons.chat,
                       color: Colors.white,
                       size: 20,
                     ),
