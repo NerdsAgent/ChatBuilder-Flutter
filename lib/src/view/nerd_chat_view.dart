@@ -903,7 +903,7 @@ class _NerdChatWidgetState extends State<NerdChatWidget>
           if (config.enableFileUpload)
             _buildCircularButton(
               icon: Icons.attach_file,
-              backgroundColor: const Color(0xFF3d4f5c),
+              backgroundColor: config.primaryColor,
               iconColor: Colors.white,
               onPressed: _controller!.pickFile,
             ),
@@ -911,14 +911,14 @@ class _NerdChatWidgetState extends State<NerdChatWidget>
           if (config.enableSpeech)
             _buildCircularButton(
               icon: Icons.mic,
-              backgroundColor: const Color(0xFF3d4f5c),
+              backgroundColor: config.primaryColor,
               iconColor: Colors.white,
               onPressed: () {},
             ),
           if (config.enableSpeech) const SizedBox(width: 8),
           _buildCircularButton(
             icon: _controller!.isUploading ? Icons.hourglass_empty : Icons.send,
-            backgroundColor: const Color(0xFF3d4f5c),
+            backgroundColor: config.primaryColor,
             iconColor: Colors.white,
             onPressed: _controller!.isUploading ? null : () {
               _controller!.sendMessage();
