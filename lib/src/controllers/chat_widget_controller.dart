@@ -13,6 +13,8 @@ import 'package:html/dom.dart' show Node, Element, Text;
 
 class ChatWidgetController extends ChangeNotifier {
   final ChatWidgetConfig config;
+  final String apiKey;
+  final String agentId;
   final void Function(String message)? onMessageSent;
   final VoidCallback? onWidgetOpened;
   final VoidCallback? onWidgetClosed;
@@ -43,6 +45,8 @@ class ChatWidgetController extends ChangeNotifier {
 
   ChatWidgetController({
     required this.config,
+    required this.agentId,
+    required this.apiKey,
     this.onMessageSent,
     this.onWidgetOpened,
     this.onWidgetClosed,
@@ -53,7 +57,7 @@ class ChatWidgetController extends ChangeNotifier {
   }
 
   void _initialize() {
-    if (config.apikey != null || config.token != null) {
+    if (apiKey.isNotEmpty || config.token != null) {
       _loadAgentConfiguration();
     }
 
@@ -73,8 +77,8 @@ class ChatWidgetController extends ChangeNotifier {
 
   Future<void> _loadAgentConfiguration() async {
     final configData = await ApiHelper.loadAgentConfiguration(
-      agentId: config.agentId,
-      apikey: config.apikey,
+      agentId: agentId,
+      apikey: apiKey,
       token: config.token,
       enableDebug: config.enableDebug,
     );
@@ -145,7 +149,7 @@ class ChatWidgetController extends ChangeNotifier {
       return;
     }
 
-    if (config.agentId.isNotEmpty) {
+    if (agentId.isNotEmpty) {
       await _sendMessageToAgent(text);
     }
   }
@@ -155,16 +159,16 @@ class ChatWidgetController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      if ((config.apikey == null || config.apikey!.isEmpty) &&
+      if (( apiKey.isEmpty) &&
           (config.token == null || config.token!.isEmpty)) {
         throw Exception('No API key or token provided');
       }
 
       final stream = await ApiHelper.sendMessageStream(
-        agentId: config.agentId,
+        agentId: agentId,
         message: message,
         sessionId: _sessionId,
-        apikey: config.apikey,
+        apikey: apiKey,
         token: config.token,
         enableDebug: config.enableDebug,
       );
@@ -227,12 +231,12 @@ class ChatWidgetController extends ChangeNotifier {
       notifyListeners();
 
       final result = await ApiHelper.sendFileMessage(
-        agentId: config.agentId,
+        agentId: agentId,
         fileName: _selectedFile!.name,
         fileBytes: _selectedFile!.bytes!,
         sessionId: _sessionId,
         message: message,
-        apikey: config.apikey,
+        apikey: apiKey,
         token: config.token,
         enableDebug: config.enableDebug,
       );

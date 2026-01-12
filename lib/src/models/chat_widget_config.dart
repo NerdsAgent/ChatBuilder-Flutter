@@ -39,8 +39,8 @@ class ChatWidgetConfig {
   final Color poweredByColor;
 
   // API
-  final String agentId;
-  final String? apikey;
+  // final String agentId;
+  // final String? apikey;
   final String? token;
   final String? apiEndpoint;
   final bool enableDebug;
@@ -77,15 +77,15 @@ class ChatWidgetConfig {
     this.enableSpeech = false,
     this.showTimestamps = true,
     this.collapsed = false,
-    this.position = WidgetPosition.bottomRight,
+    this.position = WidgetPosition.bottomLeft,
     this.showPoweredBy = true,
     this.poweredByLogo,
     this.poweredByText = 'Powered by',
     this.poweredByBrand = 'NerdAgent',
     this.poweredByUrl = 'https://nerdagent.com',
     this.poweredByColor = const Color(0xFF4e8cff),
-    this.agentId = '',
-    this.apikey,
+    // this.agentId = '',
+    // this.apikey,
     this.token,
     this.apiEndpoint,
     this.enableDebug = false,
@@ -179,8 +179,8 @@ class ChatWidgetConfig {
       poweredByBrand: poweredByBrand ?? this.poweredByBrand,
       poweredByUrl: poweredByUrl ?? this.poweredByUrl,
       poweredByColor: poweredByColor ?? this.poweredByColor,
-      agentId: agentId ?? this.agentId,
-      apikey: apikey ?? this.apikey,
+      // agentId: agentId ?? this.agentId,
+      // apikey: apikey ?? this.apikey,
       token: token ?? this.token,
       apiEndpoint: apiEndpoint ?? this.apiEndpoint,
       enableDebug: enableDebug ?? this.enableDebug,
