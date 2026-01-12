@@ -66,7 +66,8 @@ class _NerdChatWidgetState extends State<NerdChatWidget>
 
   Offset _getPosition() {
     final screenSize = MediaQuery.of(context).size;
-    const padding = 80.0;
+    final bool isWeb = screenSize.width > 600;
+    final padding =isWeb? 80.0:150.0;
     const widthpadding = 20.0;
 
 

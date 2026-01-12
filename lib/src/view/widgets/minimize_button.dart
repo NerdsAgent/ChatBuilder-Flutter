@@ -1,3 +1,4 @@
+import 'package:chatbuilder_flutter/chatbuilder_flutter.dart';
 import 'package:flutter/material.dart';
 import '../../models/chat_widget_config.dart';
 import '../../utils/text_style_helper.dart';
@@ -24,9 +25,12 @@ class MinimizeButtonWidget extends StatefulWidget {
 
 class _MinimizeButtonWidgetState extends State<MinimizeButtonWidget> {
   bool _isHovering = false;
-
+  
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+   final bool isWeb = screenSize.width > 600;
+   bool ismobileBottomleft= !isWeb &&(widget.config.position==WidgetPosition.bottomLeft);
     return Positioned(
       left: widget.position.dx,
       top: widget.position.dy,
@@ -115,7 +119,8 @@ class _MinimizeButtonWidgetState extends State<MinimizeButtonWidget> {
                 // Popup message - absolute positioned, doesn't affect layout
                 if (_isHovering || widget.showPopup)
                   Positioned(
-                    bottom: 70,
+                    bottom: 80,
+                    right:ismobileBottomleft?null :20,
                     child: AnimatedOpacity(
                       opacity: _isHovering || widget.showPopup ? 1.0 : 0.0,
                       duration: const Duration(milliseconds: 200),
