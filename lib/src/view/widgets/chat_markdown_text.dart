@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../models/chat_widget_config.dart';
-import '../../utils/text_style_helper.dart';
 
 /// Lightweight, dependency-free markdown-to-widget renderer for plain-text
 /// agent messages that use markdown syntax but contain no real HTML tags.
