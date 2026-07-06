@@ -43,6 +43,20 @@ class ChatWidgetController extends ChangeNotifier {
   bool get isUploading => _isUploading;
   PlatformFile? get selectedFile => _selectedFile;
 
+  // Matches genuine HTML tags only — mirrors the app-side detection so a
+  // markdown message that happens to contain "<3" or "a < b" isn't
+  // misidentified as HTML and flattened.
+  static final RegExp _rawHtmlTagPattern = RegExp(
+    r'<(?:!doctype|html|head|body|div|span|table|thead|tbody|tfoot|tr|td|th|'
+    r'ul|ol|li|dl|dt|dd|h[1-6]|br|hr|p|strong|em|b|i|u|s|small|sub|sup|a|img|'
+    r'code|pre|blockquote|section|article|header|footer|nav|aside|main|'
+    r'figure|figcaption|form|input|button|label|select|option|textarea|'
+    r'style|script|iframe|svg|canvas|video|audio|source)\b',
+    caseSensitive: false,
+  );
+
+  bool _looksLikeRawHtml(String text) => _rawHtmlTagPattern.hasMatch(text);
+
   ChatWidgetController({
     required this.config,
     required this.agentId,
@@ -90,40 +104,82 @@ class ChatWidgetController extends ChangeNotifier {
 
   // Message Management
   void addMessage(String text, {required bool isUser}) {
-      final isHtml = text.contains(RegExp(r'<[a-zA-Z][^>]*>'));
-      String content=text;
-      log("textmessage $text");
-        if(isHtml){
-           log("textmessage2 ${htmlToPlainText(text)}");
-          content=htmlToPlainText(text);
-        }
+    // Only bot messages are ever markdown/HTML; user input is always literal.
+    final bool isRawHtml = !isUser && _looksLikeRawHtml(text);
+    String content = text;
+
+    if (isRawHtml) {
+      log("textmessage2 ${htmlToPlainText(text)}");
+      content = htmlToPlainText(text);
+    }
+
     final message = ChatMessage(
       id: 'msg-${++_messageIdCounter}',
       text: content,
       isUser: isUser,
+      isRawHtml: isRawHtml,
       timestamp: DateTime.now(),
     );
 
     _messages.add(message);
     notifyListeners();
-    
+
     Future.delayed(const Duration(milliseconds: 100), scrollToBottom);
   }
+  // void addMessage(String text, {required bool isUser}) {
+  //     final isHtml = text.contains(RegExp(r'<[a-zA-Z][^>]*>'));
+  //     String content=text;
+  //     log("textmessage $text");
+  //       if(isHtml){
+  //          log("textmessage2 ${htmlToPlainText(text)}");
+  //         content=htmlToPlainText(text);
+  //       }
+  //   final message = ChatMessage(
+  //     id: 'msg-${++_messageIdCounter}',
+  //     text: content,
+  //     isUser: isUser,
+  //     timestamp: DateTime.now(),
+  //   );
+
+  //   _messages.add(message);
+  //   notifyListeners();
+    
+  //   Future.delayed(const Duration(milliseconds: 100), scrollToBottom);
+  // }
 
   void updateMessage(String id, String text) {
-    final isHtml = text.contains(RegExp(r'<[a-zA-Z][^>]*>'));
-      String content=text;
-      log("textmessage $text");
-        if(isHtml){
-           log("textmessage2 ${htmlToPlainText(text)}");
-          content=htmlToPlainText(text);
-        }
     final index = _messages.indexWhere((m) => m.id == id);
-    if (index != -1) {
-      _messages[index] = _messages[index].copyWith(text: content);
-      notifyListeners();
+    if (index == -1) return;
+
+    final isUser = _messages[index].isUser;
+    final bool isRawHtml = !isUser && _looksLikeRawHtml(text);
+    String content = text;
+
+    if (isRawHtml) {
+      content = htmlToPlainText(text);
     }
+
+    _messages[index] = _messages[index].copyWith(
+      text: content,
+      isRawHtml: isRawHtml,
+    );
+    notifyListeners();
   }
+
+  // void updateMessage(String id, String text) {
+  //   final isHtml = text.contains(RegExp(r'<[a-zA-Z][^>]*>'));
+  //     String content=text;
+  //     log("textmessage $text");
+  //       if(isHtml){
+  //          log("textmessage2 ${htmlToPlainText(text)}");
+  //         content=htmlToPlainText(text);
+  //       }
+  //   final index = _messages.indexWhere((m) => m.id == id);
+  //   if (index != -1) {
+  //     _messages[index] = _messages[index].copyWith(text: content);
+  //     notifyListeners();
+  //   }
+  // }
 
   void clearMessages() {
     _messages.clear();

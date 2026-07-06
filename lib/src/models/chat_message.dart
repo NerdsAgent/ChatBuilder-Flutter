@@ -3,12 +3,14 @@ class ChatMessage {
   final String text;
   final bool isUser;
   final DateTime timestamp;
+  final bool isRawHtml; // true only when the source text had genuine HTML tags
 
   ChatMessage({
     required this.id,
     required this.text,
     required this.isUser,
     required this.timestamp,
+    this.isRawHtml = false,
   });
 
   ChatMessage copyWith({
@@ -16,12 +18,14 @@ class ChatMessage {
     String? text,
     bool? isUser,
     DateTime? timestamp,
+    bool? isRawHtml,
   }) {
     return ChatMessage(
       id: id ?? this.id,
       text: text ?? this.text,
       isUser: isUser ?? this.isUser,
       timestamp: timestamp ?? this.timestamp,
+      isRawHtml: isRawHtml ?? this.isRawHtml,
     );
   }
 
@@ -31,6 +35,7 @@ class ChatMessage {
       'text': text,
       'isUser': isUser,
       'timestamp': timestamp.toIso8601String(),
+      'isRawHtml': isRawHtml,
     };
   }
 
@@ -40,6 +45,7 @@ class ChatMessage {
       text: json['text'] as String,
       isUser: json['isUser'] as bool,
       timestamp: DateTime.parse(json['timestamp'] as String),
+      isRawHtml: json['isRawHtml'] as bool? ?? false,
     );
   }
 }

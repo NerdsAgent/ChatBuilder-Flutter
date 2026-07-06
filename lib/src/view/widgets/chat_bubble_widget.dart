@@ -1,3 +1,4 @@
+import 'package:chatbuilder_flutter/src/view/widgets/chat_markdown_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../controllers/chat_widget_controller.dart';
@@ -65,15 +66,16 @@ class ChatBubbleWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: SelectableText(
-                    message.text,
-                    style: TextStyleHelper.getChatTextStyle(
-                      config,
-                      size: 14,
-                      color: const Color(0xFF2d3e50),
-                      weight: FontWeight.w400,
-                    ),
-                  ),
+                  child: _buildMessageContent(),
+                  //  SelectableText(
+                  //   message.text,
+                  //   style: TextStyleHelper.getChatTextStyle(
+                  //     config,
+                  //     size: 14,
+                  //     color: const Color(0xFF2d3e50),
+                  //     weight: FontWeight.w400,
+                  //   ),
+                  // ),
                 ),
                 if (config.showTimestamps)
                   Padding(
@@ -94,6 +96,28 @@ class ChatBubbleWidget extends StatelessWidget {
           if (message.isUser) _buildUserAvatar(),
         ],
       ),
+    );
+  }
+
+  Widget _buildMessageContent() {
+    final style = TextStyleHelper.getChatTextStyle(
+      config,
+      size: 14,
+      color: const Color(0xFF2d3e50),
+      weight: FontWeight.w400,
+    );
+
+    // User input and genuine HTML (already flattened to readable plain text
+    // by the controller) render as plain selectable text.
+    if (message.isUser || message.isRawHtml) {
+      return SelectableText(message.text, style: style);
+    }
+
+    // Everything else is bot markdown — render it properly.
+    return ChatMarkdownText(
+      data: message.text,
+      baseStyle: style,
+      config: config,
     );
   }
 
